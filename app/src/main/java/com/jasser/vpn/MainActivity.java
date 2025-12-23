@@ -6,11 +6,10 @@ import android.webkit.*;
 import android.widget.*;
 import android.view.*;
 import android.graphics.Color;
-import java.util.Properties;
 
 public class MainActivity extends Activity {
     WebView ghostBrowser;
-    // قائمة بسيرفرات بروكسي مجانية وسريعة
+    // سيرفرات بروكسي (IP:Port)
     String[] proxies = {"104.248.48.190", "159.65.105.210", "139.162.115.118", "178.62.18.251", "51.15.242.202"};
 
     @Override
@@ -32,8 +31,14 @@ public class MainActivity extends Activity {
         countrySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setProxy(proxies[position]);
-                ghostBrowser.reload();
+                // تفعيل البروكسي عند الاختيار
+                String selectedProxy = proxies[position];
+                System.setProperty("http.proxyHost", selectedProxy);
+                System.setProperty("http.proxyPort", "8080");
+                System.setProperty("https.proxyHost", selectedProxy);
+                System.setProperty("https.proxyPort", "8080");
+                
+                if(ghostBrowser != null) ghostBrowser.reload();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -42,16 +47,10 @@ public class MainActivity extends Activity {
         main.addView(countrySpinner);
         ghostBrowser = new WebView(this);
         ghostBrowser.getSettings().setJavaScriptEnabled(true);
+        ghostBrowser.setWebViewClient(new WebViewClient());
         main.addView(ghostBrowser);
         setContentView(main);
+        
         ghostBrowser.loadUrl("https://whoer.net");
-    }
-
-    private void setProxy(String proxyHost) {
-        // تفعيل البروكسي على مستوى النظام للتطبيق
-        System.setProperty("http.proxyHost", proxyHost);
-        System.setProperty("http.proxyPort", "8080");
-        System.setProperty("https.proxyHost", proxyHost);
-        System.setProperty("https.proxyPort", "8080");
     }
 }
